@@ -14,9 +14,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import CustomTooltip from "@/components/ui/CustomTooltip";
-import axiosInstance from "@/api/baratpayDashApi";
+import axiosInstance from "@/api/spigenDashApi";
 import { Icons } from "@/components/icons/icons";
-import { useAppDispatch } from "@/hooks/useReduxHook";
 
 type Props = {
   children: React.ReactNode;
@@ -29,26 +28,11 @@ const menuItems = [
     icon: Icons.user,
     navigateTo: "/user/add-user",
   },
-  { title: "Role", tab: "role", icon: Icons.role, navigateTo: "/role/list" },
-  {
-    title: "Location",
-    tab: "location",
-    icon: Icons.location,
-    navigateTo: "/location/list",
-  },
-  { title: "Menu", tab: "menu", icon: Icons.menu, navigateTo: "/menu/create" },
   {
     title: "Permission",
     tab: "permission",
     icon: Icons.permission,
     navigateTo: "/permission/list",
-  },
-
-  {
-    title: "Notification",
-    tab: "notification",
-    icon: Icons.notifications,
-    navigateTo: "/notification",
   },
 ];
 const profileItem = {
@@ -59,7 +43,6 @@ const profileItem = {
 };
 const RootLayout: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
   const [tab, setTab] = useState<string>("dashboard");
 
   const location = useLocation();
@@ -125,7 +108,11 @@ const RootLayout: React.FC<Props> = ({ children }) => {
         <div className="sidebar min-w-[60px] h-full bg-white border-r py-[20px]">
           <div className="flex items-center justify-center w-full h-[50px]">
             <Link to="/">
-              <img src={"/spigenLogo.svg"} alt="" className="w-[40px] py-[10px]" />
+              <img
+                src={"/spigenLogo.svg"}
+                alt=""
+                className="w-[40px] py-[10px]"
+              />
             </Link>
           </div>
           <div className="h-[calc(100vh-160px)] flex flex-col items-center gap-[5px] py-[20px]">
@@ -243,7 +230,10 @@ export default RootLayout;
 //   },
 // ];
 
-export const getMenuKeyByUrl = (menuList: any, targetUrl: string): string | null => {
+export const getMenuKeyByUrl = (
+  menuList: any,
+  targetUrl: string
+): string | null => {
   if (targetUrl === "/") return "dashboard"; // Special case for the root URL
 
   for (const menu of menuList) {
@@ -253,7 +243,6 @@ export const getMenuKeyByUrl = (menuList: any, targetUrl: string): string | null
         return config;
       });
       return menu.menu_key;
-      
     }
 
     if (menu.children && menu.children.length > 0) {
@@ -264,7 +253,6 @@ export const getMenuKeyByUrl = (menuList: any, targetUrl: string): string | null
           return config;
         });
         return foundKey;
-        
       }
     }
   }

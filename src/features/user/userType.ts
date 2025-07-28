@@ -9,7 +9,6 @@ export type AddUserPayload = {
   // userStatus: "active" | "inactive";
   type: "developer" | "admin" | "user";
   verification: "E" | "M" | "1" | "0";
-  role: string;
 };
 export type AdduserApiResponse = {
   message: string;
@@ -92,8 +91,7 @@ export type AdduserSatates = {
   suspendUserLoading: boolean;
   activateUserLoading: boolean;
   updateUserProfileLoading: boolean;
-  rolelistData: any;
   loading: boolean;
-  activityData:any,
-  activityLoading: boolean
+  activityData: any;
+  activityLoading: boolean;
 };

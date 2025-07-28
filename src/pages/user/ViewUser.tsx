@@ -77,10 +77,7 @@ const ViewUser = () => {
       maxWidth: 400,
       filter: true,
     },
-    { field: "mobileNo", headerName: "Mobile No.",filter: true},
-    { field: "gender", headerName: "Gender" },
-    { field: "role", headerName: "Role",filter: true },
-    { field: "userID", headerName: "userID", hide: true },
+    { field: "mobileNo", headerName: "Mobile No.",filter: true, flex:1},
   ];
 
   return (

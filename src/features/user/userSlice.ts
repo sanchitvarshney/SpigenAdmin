@@ -1,4 +1,4 @@
-import axiosInstance from "@/api/baratpayDashApi";
+import axiosInstance from "@/api/spigenDashApi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import {
@@ -29,10 +29,9 @@ const initialState: AdduserSatates = {
   suspendUserLoading: false,
   activateUserLoading: false,
   updateUserProfileLoading: false,
-  rolelistData: null,
   loading: false,
   activityLoading: false,
-  activityData:null,
+  activityData: null,
 };
 
 export const addUser = createAsyncThunk<
@@ -70,17 +69,17 @@ export const getUserProfile = createAsyncThunk<
 });
 
 export const changeUserPassword = createAsyncThunk<
-  AxiosResponse<ChangePasswordResponse>,  // The success response type
-  ChangeUserPasswordPayload,             // The payload type
-  { rejectValue: string }               // Type for reject value, assuming an error message
+  AxiosResponse<ChangePasswordResponse>, // The success response type
+  ChangeUserPasswordPayload, // The payload type
+  { rejectValue: string } // Type for reject value, assuming an error message
 >("user/changeuserPassword", async (payload, { rejectWithValue }) => {
   try {
     const response = await axiosInstance.put(
       `/user/change-user-password`,
       payload
     );
-    return response;  // Return the success response
-  } catch (error:any) {
+    return response; // Return the success response
+  } catch (error: any) {
     console.log(error.response.data.message);
     // Handle error by returning a rejected value with the proper type
     return rejectWithValue(error.response.data.message);
@@ -190,9 +189,7 @@ export const userLoginLogs = createAsyncThunk<AxiosResponse<any>, any>(
 export const userActivityLogs = createAsyncThunk<AxiosResponse<any>, any>(
   "/user/userActivityLogs",
   async (payload) => {
-    const response = await axiosInstance.get(
-      `logs/getLogs?userId=${payload}`
-    );
+    const response = await axiosInstance.get(`logs/getLogs?userId=${payload}`);
     return response;
   }
 );
@@ -380,32 +377,6 @@ const userSlice = createSlice({
       })
       .addCase(updateUserProfile.rejected, (state) => {
         state.updateUserProfileLoading = false;
-      })
-      .addCase(getRoleList.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(getRoleList.fulfilled, (state, action) => {
-        if (action.payload.data.success) {
-          state.rolelistData = action.payload.data.roles;
-        }
-        state.loading = false;
-      })
-      .addCase(getRoleList.rejected, (state) => {
-        state.loading = false;
-        state.rolelistData = [];
-      })
-      .addCase(notificationPending.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(notificationPending.fulfilled, (state, action) => {
-        if (action.payload.data.success) {
-          state.rolelistData = action.payload.data.roles;
-        }
-        state.loading = false;
-      })
-      .addCase(notificationPending.rejected, (state) => {
-        state.loading = false;
-        state.rolelistData = [];
       });
   },
 });

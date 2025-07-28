@@ -1,7 +1,12 @@
-import axiosInstance from "@/api/baratpayDashApi";
+import axiosInstance from "@/api/spigenDashApi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
-import { CreateRolePayload, CreateRoleResponse, PermissionState, RolesListResponse } from "./permissionType";
+import {
+  CreateRolePayload,
+  CreateRoleResponse,
+  PermissionState,
+  RolesListResponse,
+} from "./permissionType";
 import { showToast } from "@/utills/toasterContext";
 const initialState: PermissionState = {
   createRoleLoading: false,
@@ -13,30 +18,51 @@ const initialState: PermissionState = {
   updateRoleLoading: false,
 };
 
-export const createRole = createAsyncThunk<AxiosResponse<CreateRoleResponse>, CreateRolePayload>("permission/createRole", async (payload) => {
+export const createRole = createAsyncThunk<
+  AxiosResponse<CreateRoleResponse>,
+  CreateRolePayload
+>("permission/createRole", async (payload) => {
   const response = await axiosInstance.post("/role/createRole", payload);
   return response;
 });
-export const getRoleList = createAsyncThunk<AxiosResponse<RolesListResponse>>("permission/getRoleList", async () => {
-  const response = await axiosInstance.get("/role/getRoles");
-  return response;
-});
+export const getRoleList = createAsyncThunk<AxiosResponse<RolesListResponse>>(
+  "permission/getRoleList",
+  async () => {
+    const response = await axiosInstance.get("/role/getRoles");
+    return response;
+  }
+);
 
-export const getUserRole = createAsyncThunk<AxiosResponse<any>, string>(`/role/getUserMenu`, async (id) => {
-  const response = await axiosInstance.get(`/role/users/${id}`);
-  return response;
-});
+export const getUserRole = createAsyncThunk<AxiosResponse<any>, string>(
+  `/role/getUserMenu`,
+  async (id) => {
+    const response = await axiosInstance.get(`/role/users/${id}`);
+    return response;
+  }
+);
 
-export const assignRole = createAsyncThunk<AxiosResponse<any>, any>("permission/assignRole", async (payload) => {
-  const response = await axiosInstance.post("/role/assignRole", payload);
-  return response;
-});
-export const deleteRole = createAsyncThunk<AxiosResponse<{ message: string; success: boolean }>, string>("permission/deleteRole", async (id) => {
+export const assignRole = createAsyncThunk<AxiosResponse<any>, any>(
+  "permission/assignRole",
+  async (payload) => {
+    const response = await axiosInstance.post("/role/assignRole", payload);
+    return response;
+  }
+);
+export const deleteRole = createAsyncThunk<
+  AxiosResponse<{ message: string; success: boolean }>,
+  string
+>("permission/deleteRole", async (id) => {
   const response = await axiosInstance.delete(`/role/deleteRole/${id}`);
   return response;
 });
-export const editRole = createAsyncThunk<AxiosResponse<{ message: string; success: boolean }>, { id: string; name: string; description: string }>("permission/editRole", async (payload) => {
-  const response = await axiosInstance.put(`/role/renameRole/${payload.id}`, payload);
+export const editRole = createAsyncThunk<
+  AxiosResponse<{ message: string; success: boolean }>,
+  { id: string; name: string; description: string }
+>("permission/editRole", async (payload) => {
+  const response = await axiosInstance.put(
+    `/role/renameRole/${payload.id}`,
+    payload
+  );
   return response;
 });
 

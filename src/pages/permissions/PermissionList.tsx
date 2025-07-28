@@ -6,7 +6,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, { useEffect, useMemo } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { getRoleList } from "@/features/permission/permissionSlice";
 import { setIsId } from "@/features/menu/isIdReducer";
 import { showToast } from "@/utills/toasterContext";
 import SelectUser, { UserType } from "@/components/reusable/selectors/SelectUser";
@@ -20,7 +19,6 @@ const schema = z.object({
 type FormValues = z.infer<typeof schema>;
 
 const PermissionList: React.FC = () => {
-  const [roleOptions, setRoleOptions] = React.useState([]);
   const [selectedVal, setSelectedVal] = React.useState<any>("");
   const [selectedType, setSelectedType] = React.useState<any>("");
   const [user, setUser] = React.useState<UserType | null>(null);
@@ -48,21 +46,7 @@ const PermissionList: React.FC = () => {
       localStorage.setItem("menuKey", menuKey);
     }
   }, [menuKey]);
-  
-  useEffect(() => {
-    // dispatch(getMenuList());
-    dispatch(getRoleList()).then((res: any) => {
-      if (res?.payload?.data?.success) {
-        let arr = res?.payload?.data?.roles?.map((r: any) => {
-          return {
-            id: r.role_id,
-            text: r.role_name,
-          };
-        });
-        setRoleOptions(arr);
-      }
-    });
-  }, [menuKey]);
+
   const updateRow = (value: any, isView: boolean, isedit: boolean, isAdd: boolean, isDelete: boolean) => {
     let newtype = localStorage.getItem("selectedType");
     if (newtype == "User") {
@@ -142,10 +126,6 @@ const PermissionList: React.FC = () => {
     setUser(null);
   };
 
-  const handleRoleChange = (newValue: any) => {
-    setSelectedVal(newValue?.id || ""); // Update selected role or user value
-  };
-
   return (
     <div className="">
       <form
@@ -181,29 +161,9 @@ const PermissionList: React.FC = () => {
             </FormControl>
             <FormControl variant="standard" sx={{ minWidth: 300 }} error={!!errors.project}>
               {/* <InputLabel>{selectedType ? selectedType : 'Select an option'}</InputLabel> */}
-              {selectedType === "User" ? (
+           
                 <SelectUser value={user} onChange={(value) => {setUser(value);setSelectedVal(value?.id)}} />
-              ) : (
-                <Controller
-                  name="role"
-                  control={control}
-                  render={({ field }) => (
-                    <Autocomplete
-                      {...field}
-                      options={roleOptions} // Options for the role selection
-                      getOptionLabel={(option: any) => option.text} // How to display options in the dropdown
-                      onChange={(e, newValue) => {
-                        handleRoleChange(newValue); // Update selected role by its id
-                        console.log(e);
-                      }}
-                      value={roleOptions.find((option: any) => option.id === selectedVal) || null} // Set selected value based on id
-                      renderInput={(params) => <TextField {...params} label={selectedType ? `Search ${selectedType}` : "Select an option"} variant="filled" />}
-                      isOptionEqualToValue={(option, value) => option.id === value.id} // Ensures correct comparison
-                      disableClearable // Prevent clearing of the selected role
-                    />
-                  )}
-                />
-              )}
+              
               {errors.project && <p className="text-red-600 text-[13px]">{errors.project.message}</p>}
             </FormControl>
           </div>

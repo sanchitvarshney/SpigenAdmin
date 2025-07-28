@@ -1,4 +1,4 @@
-import axiosInstance from "@/api/baratpayDashApi";
+import axiosInstance from "@/api/spigenDashApi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import {
@@ -54,12 +54,13 @@ export const updateAllotLocation = createAsyncThunk<
   return response;
 });
 
-export const getUserProfile = createAsyncThunk<
-  AxiosResponse<ProfileResponse>
->("profile/getUserProfile", async () => {
-  const response = await axiosInstance.get("/user/profile");
-  return response;
-});
+export const getUserProfile = createAsyncThunk<AxiosResponse<ProfileResponse>>(
+  "profile/getUserProfile",
+  async () => {
+    const response = await axiosInstance.get("/user/profile");
+    return response;
+  }
+);
 
 export const getAllocatedLocationList = createAsyncThunk<
   AxiosResponse<LocationListResponse>

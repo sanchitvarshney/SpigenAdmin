@@ -1,4 +1,4 @@
-import axiosInstance from "@/api/baratpayDashApi";
+import axiosInstance from "@/api/spigenDashApi";
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { AxiosResponse } from "axios";
 import {

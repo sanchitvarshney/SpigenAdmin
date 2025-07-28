@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 import { Icons } from "@/components/icons/icons";
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, IconButton, LinearProgress, TextField, Typography } from "@mui/material";
 import SharedDialog from "@/components/shared/SharedDialog";
-import { deleteRole, editRole, getRoleList } from "@/features/permission/permissionSlice";
+import { deleteRole, editRole } from "@/features/permission/permissionSlice";
 import { showToast } from "@/utills/toasterContext";
 import LoadingButton from "@mui/lab/LoadingButton";
 
@@ -139,7 +139,6 @@ const RoleListTable: React.FC = () => {
                       setUpdate(false);
                       setRole("");
                       setdescription("");
-                      dispatch(getRoleList());
                       setRoleid("");
                     }
                   });
@@ -163,7 +162,6 @@ const RoleListTable: React.FC = () => {
           dispatch(deleteRole(roleid)).then((res: any) => {
             if (res?.payload?.data?.success) {
               setOpen(false);
-              dispatch(getRoleList());
               showToast(res.payload.data.message, "success");
             }
           });

@@ -25,35 +25,6 @@ const menuBarData = [
     ],
   },
   {
-    id: 4,
-    title: "Roles",
-    icon: "suppliersIcon",
-    route: "/role/list",
-    subcategories: [
-      { id: 4.1, title: "User Roles", route: "/role/list" },
-    ],
-  },
-  {
-    id: 5,
-    title: "Location",
-    icon: "customersIcon",
-    route: "/location/list",
-    subcategories: [
-      { id: 5.1, title: "Allot Location", route: "/location/list" },
-      { id: 5.2, title: "Location Alloted Module", route: "/location/alloted-location" },
-    ],
-  },
-  {
-    id: 6,
-    title: "Menu",
-    icon: "reportsIcon",
-    route: "/menu/create",
-    subcategories: [
-      { id: 6.1, title: "Create Master Menu", route: "menu/create" },
-      { id: 6.2, title: "Menu List", route: "/menu/list" },
-    ],
-  },
-  {
     id: 7,
     title: "Permissions",
     icon: "settingsIcon",

@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Autocomplete, CircularProgress, TextField, Typography } from "@mui/material";
+import {
+  Autocomplete,
+  CircularProgress,
+  TextField,
+  Typography,
+} from "@mui/material";
 import useDebounce from "@/hooks/useDebounce";
-import axiosInstance from "@/api/baratpayDashApi";
+import axiosInstance from "@/api/spigenDashApi";
 
 export type UserType = {
   id: string;
@@ -27,7 +32,17 @@ type Props = {
   size?: "small" | "medium";
 };
 
-const SelectUser: React.FC<Props> = ({ value, onChange, label = "Search User", width = "100%", error, helperText, varient = "filled", required = false, size = "medium" }) => {
+const SelectUser: React.FC<Props> = ({
+  value,
+  onChange,
+  label = "Search User",
+  width = "100%",
+  error,
+  helperText,
+  varient = "filled",
+  required = false,
+  size = "medium",
+}) => {
   const [inputValue, setInputValue] = useState("");
   const debouncedInputValue = useDebounce(inputValue, 300);
   const [loading, setLoading] = useState<boolean>(false);
@@ -37,7 +52,9 @@ const SelectUser: React.FC<Props> = ({ value, onChange, label = "Search User", w
   const fetchUsers = async (query: string | null) => {
     setLoading(true);
     try {
-      const response = await axiosInstance.get<UserApiResponse>(`/user/users?status=1&search=${query}`);
+      const response = await axiosInstance.get<UserApiResponse>(
+        `/user/users?status=1&search=${query}`
+      );
       if (response.data.success) {
         setUserList(response.data.data);
       } else {
@@ -72,7 +89,8 @@ const SelectUser: React.FC<Props> = ({ value, onChange, label = "Search User", w
       loading={loading}
       isOptionEqualToValue={(option, value) => option.id === value?.id}
       onInputChange={(_, newInputValue, reason) => {
-        (reason === "input" || reason === "clear") && setInputValue(newInputValue);
+        (reason === "input" || reason === "clear") &&
+          setInputValue(newInputValue);
       }}
       renderInput={(params) => (
         <TextField
@@ -86,7 +104,9 @@ const SelectUser: React.FC<Props> = ({ value, onChange, label = "Search User", w
             ...params.InputProps,
             endAdornment: (
               <>
-                {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                {loading ? (
+                  <CircularProgress color="inherit" size={20} />
+                ) : null}
                 {params.InputProps.endAdornment}
               </>
             ),
@@ -94,7 +114,10 @@ const SelectUser: React.FC<Props> = ({ value, onChange, label = "Search User", w
         />
       )}
       renderOption={(props, option) => (
-        <li {...props} className="flex flex-col px-[10px] py-[5px] hover:bg-cyan-50 cursor-pointer">
+        <li
+          {...props}
+          className="flex flex-col px-[10px] py-[5px] hover:bg-cyan-50 cursor-pointer"
+        >
           <Typography fontWeight={500}>{option.text.split("-")[0]}</Typography>
           <Typography fontSize={12}>{option.text.split("-")[1]}</Typography>
         </li>
