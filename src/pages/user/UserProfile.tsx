@@ -28,7 +28,7 @@ import {
   Divider,
   InputAdornment,
 } from "@mui/material";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate, useParams } from "react-router-dom";
@@ -36,8 +36,6 @@ import { CalendarIcon } from "@radix-ui/react-icons";
 import { FaChevronDown } from "react-icons/fa";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import { RiPencilFill } from "react-icons/ri";
-// import { FaChevronLeft } from "react-icons/fa";
-// import { FaChevronRight } from "react-icons/fa6";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { useForm } from "react-hook-form";
 import {
@@ -60,7 +58,6 @@ import LoadingButton from "@mui/lab/LoadingButton";
 import { showToast } from "@/utills/toasterContext";
 import { Icons } from "../../components/icons/icons";
 import ShowLog from "./ShowLog";
-import { findMenuKey } from "@/general";
 import ShowActivityLog from "@/pages/user/ShowActivityLog";
 import FullPageLoading from "@/components/reusable/selectors/FullPageLoading";
 
@@ -82,7 +79,7 @@ const schema = z.object({
   confirmPassword: z.string().min(8, "Password must be at least 8 characters"),
   passwordMatch: z.boolean(),
 
-  ask_password_change: z.boolean(),
+  askChangePassword: z.boolean(),
   user_id: z.string(),
 });
 type ResetPasswordType = z.infer<typeof schema>;
@@ -152,7 +149,6 @@ const UserProfile = () => {
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleClickShowConfirmPassword = () =>
     setShowConfirmPassword(!showConfirmPassword);
-  const { menuList } = useAppSelector((state: any) => state.menu);
 
   const ref = React.useRef<HTMLDivElement>(null);
   const ref2 = React.useRef<HTMLDivElement>(null);
@@ -179,7 +175,7 @@ const UserProfile = () => {
     defaultValues: {
       password: "",
       confirmPassword: "",
-      ask_password_change: false,
+      askChangePassword: false,
       user_id: userProfile ? userProfile[0]?.userID || "" : "",
     },
   });
@@ -193,16 +189,6 @@ const UserProfile = () => {
     setValue(newValue);
     console.log(event);
   };
-  const menuKey = useMemo(
-    () => findMenuKey("/user/view-user", menuList),
-    [menuList]
-  );
-
-  useEffect(() => {
-    if (menuKey) {
-      localStorage.setItem("menuKey", menuKey);
-    }
-  }, [menuKey]);
 
   useEffect(() => {
     if (userProfile) {
@@ -226,7 +212,7 @@ const UserProfile = () => {
     const payload: any = {
       userId: userProfile?.id || "",
       password: password,
-      ask_password_change: askPasswordChange ? "Y" : "N",
+      askChangePassword: askPasswordChange ? "Y" : "N",
     };
 
     dispatch(changeUserPassword(payload) as any).then((res: any) => {
@@ -282,7 +268,7 @@ const UserProfile = () => {
 
   useEffect(() => {
     dispatch(getUserProfile(params.id || ""));
-  }, [params, menuKey]);
+  }, [params]);
 
   useEffect(() => {
     if (errors.password || errors.confirmPassword) {
@@ -422,7 +408,7 @@ const UserProfile = () => {
                     updateUserMobile({
                       userId: userProfile ? userProfile?.id : "",
                       mobileNo: mobile,
-                      isVarified: askToVerify ? "1" : "0",
+                      isVerified: askToVerify ? "1" : "0",
                     })
                   ).then((res: any) => {
                     if (res.payload.data?.success) {
@@ -508,7 +494,7 @@ const UserProfile = () => {
                     updateUserEmail({
                       emailId: email,
                       userId: userProfile ? userProfile.id || "" : "",
-                      isVarified: askToVerify ? "1" : "0",
+                      isVerified: askToVerify ? "1" : "0",  
                     })
                   ).then((res: any) => {
                     if (res.payload.data?.success) {
@@ -861,7 +847,7 @@ const UserProfile = () => {
         </div>
         <div className="flex items-center justify-between pr-[10px]">
           <DialogTitle fontWeight={600}>
-            Update User - {userProfile ? userProfile?.user_name : "---"}
+            Update User - {userProfile ? userProfile?.userName : "---"}
           </DialogTitle>
           <IconButton onClick={() => setUpdateUser(false)}>
             <Icons.close />
@@ -966,7 +952,7 @@ const UserProfile = () => {
               id="modal-modal-title"
             >
               Update Status of user -{" "}
-              {userProfile ? userProfile?.user_name : "---"}
+              {userProfile ? userProfile?.userName : "---"}
             </h2>
           </div>
 
@@ -1051,7 +1037,7 @@ const UserProfile = () => {
               id="modal-modal-title"
             >
               Update Status of user -{" "}
-              {userProfile ? userProfile?.user_name : "---"}
+              {userProfile ? userProfile?.userName : "---"}
             </h2>
           </div>
 
@@ -1176,7 +1162,7 @@ const UserProfile = () => {
                     <Skeleton className="w-full h-[13px] mt-[5px]" />
                   ) : (
                     "User Name : " +
-                    (userProfile ? userProfile?.user_name : "---")
+                    (userProfile ? userProfile?.userName : "---")
                   )}
                 </p>
                 <p className="text-stone-500 text-[13px]">
@@ -1192,7 +1178,7 @@ const UserProfile = () => {
                   {getUserProfileLoading ? (
                     <Skeleton className="w-full h-[13px] mt-[5px]" />
                   ) : userProfile ? (
-                    "Created: " + userProfile?.reg_date
+                    "Created: " + userProfile?.regDate
                   ) : (
                     "Created:  --"
                   )}
@@ -1215,7 +1201,7 @@ const UserProfile = () => {
                   disabled={!userProfile}
                   onClick={() => {
                     setUpdateUser(true);
-                    setName(userProfile?.user_name || "");
+                    setName(userProfile?.userName || "");
                   }}
                 >
                   <Typography fontSize={15} fontWeight={500} variant="inherit">
@@ -1318,7 +1304,7 @@ const UserProfile = () => {
                         {getUserProfileLoading ? (
                           <Skeleton className="w-[150px] h-[13px]" />
                         ) : userProfile ? (
-                          userProfile.user_name
+                          userProfile.userName
                         ) : (
                           "--"
                         )}
@@ -1359,8 +1345,10 @@ const UserProfile = () => {
                         ) : userProfile ? (
                           userProfile?.gender === "M" ? (
                             "Male"
-                          ) : (
+                          ) : userProfile?.gender === "F" ? (
                             "Female"
+                          ) : (
+                            "--"
                           )
                         ) : (
                           "--"

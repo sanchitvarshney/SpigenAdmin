@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { getUserList } from "@/features/user/userSlice";
@@ -12,7 +12,6 @@ import { IconButton } from "@mui/material";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { findMenuKey } from "@/general";
 
 const ViewUser = () => {
   const [value, setValue] = React.useState("1");
@@ -20,25 +19,11 @@ const ViewUser = () => {
   const { getUserListLoading, userList } = useAppSelector(
     (state) => state.user
   );
-  const { menuList } = useAppSelector((state: any) => state.menu);
-
-  // UseMemo to memoize the menuKey based on the current URL
-  const menuKey = useMemo(
-    () => findMenuKey(window.location.pathname,menuList),
-    [menuList]
-  );
-
-  // Store menuKey in localStorage whenever it changes
-  useEffect(() => {
-    if (menuKey) {
-      localStorage.setItem("menuKey", menuKey);
-    }
-  }, [menuKey]);
 
   // Fetch user list when menuKey changes
   useEffect(() => {
     dispatch(getUserList("1"));
-  }, [menuKey, dispatch]);
+  }, [dispatch]);
 
   // Handle radio button change
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

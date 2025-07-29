@@ -239,7 +239,6 @@ export const getMenuKeyByUrl = (
   for (const menu of menuList) {
     if (menu.url === targetUrl) {
       axiosInstance.interceptors.request.use(async (config) => {
-        // config.headers["menuKey"] = menu.menu_key;
         return config;
       });
       return menu.menu_key;
@@ -249,7 +248,6 @@ export const getMenuKeyByUrl = (
       const foundKey = getMenuKeyByUrl(menu.children, targetUrl); // Recursively search children
       if (foundKey) {
         axiosInstance.interceptors.request.use(async (config) => {
-          // config.headers["menuKey"] = foundKey;
           return config;
         });
         return foundKey;

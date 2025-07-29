@@ -102,7 +102,6 @@ const TreeDataMenu: React.FC<Props> = ({ updateRow, selectedType, selectedVal,us
     // { field: "url", headerName: "URL",maxWidth: 300,
     //   minWidth: 150,
     //   autoHeight: true, },
-    { field: "menuKey", headerName: "Menu Key", hide: true },
     {
       headerComponent: CustomHeader,
       field: "action",

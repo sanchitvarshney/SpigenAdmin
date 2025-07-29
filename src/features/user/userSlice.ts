@@ -110,7 +110,7 @@ export const change2FactorAuthStatus = createAsyncThunk<
   AxiosResponse<ChangePasswordResponse>,
   Modify2FactorAuthPayload
 >("user/modify2FactorAuth", async (paylod) => {
-  const response = await axiosInstance.put(`/user/2Step_verfication`, paylod);
+  const response = await axiosInstance.put(`/user/two-step-verification`, paylod);
   return response;
 });
 
@@ -181,7 +181,7 @@ export const userLoginLogs = createAsyncThunk<AxiosResponse<any>, any>(
   "/user/userLoginLogs",
   async (payload) => {
     const response = await axiosInstance.get(
-      `/user/userLoginLogs?user_id=${payload}`
+      `/user/userLoginLogs?userId=${payload}`
     );
     return response;
   }
@@ -189,7 +189,7 @@ export const userLoginLogs = createAsyncThunk<AxiosResponse<any>, any>(
 export const userActivityLogs = createAsyncThunk<AxiosResponse<any>, any>(
   "/user/userActivityLogs",
   async (payload) => {
-    const response = await axiosInstance.get(`logs/getLogs?userId=${payload}`);
+    const response = await axiosInstance.get(`/user/getLogs?userId=${payload}`);
     return response;
   }
 );

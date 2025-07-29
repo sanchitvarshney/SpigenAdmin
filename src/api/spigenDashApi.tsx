@@ -26,7 +26,6 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(async (config) => {
   const token = getToken();
 
-  const id = localStorage.getItem("menuKey");
   if (token) {
     const uniqueid = uuidv4();
     const fingerprint = await getFingerprint();
@@ -36,7 +35,6 @@ axiosInstance.interceptors.request.use(async (config) => {
     config.headers["session"] = "2024-2025";
     config.headers["x-click-token"] = uniqueid;
     config.headers["fingerprint"] = fingerprint || "unknown";
-    config.headers["menukey"] = id||"";
   }
 
   return config;

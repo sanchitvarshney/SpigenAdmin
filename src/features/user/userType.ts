@@ -50,7 +50,7 @@ export type UserProfileResponse = {
 export type ChangeUserPasswordPayload = {
   userId: string;
   password: string;
-  ask_password_change: boolean;
+  askChangePassword: boolean;
 };
 export type ChangePasswordResponse = {
   success: boolean;
@@ -60,7 +60,7 @@ export type ChangePasswordResponse = {
 export type UpdateEmailPayload = {
   userId: string;
   emailId: string;
-  isVarified: string;
+  isVerified: string;
 };
 
 export type Modify2FactorAuthPayload = {
@@ -71,7 +71,7 @@ export type Modify2FactorAuthPayload = {
 export type UpdateMobilePayload = {
   userId: string;
   mobileNo: string;
-  isVarified: string;
+  isVerified: string;
 };
 export type UpdateuserProfilePayload = {
   userId: any;
