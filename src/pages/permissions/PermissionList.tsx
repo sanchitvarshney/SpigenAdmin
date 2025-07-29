@@ -108,7 +108,6 @@ const PermissionList: React.FC = () => {
   }, [selectedVal, selectedType , user]);
   let type = [
     { id: "User", text: "User" },
-    { id: "Role", text: "Role" },
   ];
 
   const handleTypeChange = (newValue: any) => {

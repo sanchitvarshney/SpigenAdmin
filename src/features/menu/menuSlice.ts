@@ -83,7 +83,7 @@ export const getUserMenu = createAsyncThunk<
   AxiosResponse<MenuListResponse>,
   string
 >(`/user/menu/getUserMenu`, async (id) => {
-  const response = await axiosInstance.get(`/permission/getUserMenu/${id}`);
+  const response = await axiosInstance.get(`/admin/permissions/userActionPermissions/${id}`);
   return response;
 });
 export const getRoleMenu = createAsyncThunk<
