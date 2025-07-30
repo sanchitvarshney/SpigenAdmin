@@ -1,14 +1,21 @@
+import React, { useEffect, useRef } from "react";
 import PermissionTable from "@/components/table/permissions/PermissionTable";
-import { getRoleMenu, getUserMenu, saveRoleMenuPermission, saveUserMenuPermission } from "@/features/menu/menuSlice";
+import {
+  getRoleMenu,
+  getUserMenu,
+  saveRoleMenuPermission,
+  saveUserMenuPermission,
+} from "@/features/menu/menuSlice";
 import { useAppDispatch } from "@/hooks/useReduxHook";
-import { Autocomplete, FormControl, TextField } from "@mui/material";
+import { Autocomplete, FormControl, TextField, Button } from "@mui/material";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React, { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { setIsId } from "@/features/menu/isIdReducer";
 import { showToast } from "@/utills/toasterContext";
-import SelectUser, { UserType } from "@/components/reusable/selectors/SelectUser";
+import SelectUser, {
+  UserType,
+} from "@/components/reusable/selectors/SelectUser";
 const schema = z.object({
   type: z.string().nonempty("Project name is required"),
   role: z.string().nonempty("Page name is required"),
@@ -21,6 +28,7 @@ const PermissionList: React.FC = () => {
   const [selectedVal, setSelectedVal] = React.useState<any>("");
   const [selectedType, setSelectedType] = React.useState<any>("");
   const [user, setUser] = React.useState<UserType | null>(null);
+  const tableRef = useRef<any>(null);
   // const isId = useSelector((state: RootState) => state.isId.isId);
   const {
     // handleSubmit,
@@ -37,44 +45,71 @@ const PermissionList: React.FC = () => {
   });
 
   const dispatch = useAppDispatch();
-  
-  const updateRow = (value: any, isView: boolean, isedit: boolean, isAdd: boolean, isDelete: boolean) => {
+
+  const updateRow = (permissions: any) => {
     let newtype = localStorage.getItem("selectedType");
     if (newtype == "User") {
-      let payload = {
-        user_id: localStorage.getItem("selectedVal"),
-        menu_key: value.data.menu_key,
-        canView: isView,
-        canEdit: isedit,
-        canAdd: isAdd,
-        canDelete: isDelete,
-      };
-      dispatch(saveUserMenuPermission(payload)).then((res: any) => {
-        if (res?.payload?.data?.success) {
+      // Handle bulk update for all permissions
+      const menuKeys = Object.keys(permissions);
+      const updatePromises = menuKeys.map((menuKey) => {
+        const modulePermissions = permissions[menuKey];
+        const payload = {
+          user_id: localStorage.getItem("selectedVal"),
+          menu_key: menuKey,
+          canView: modulePermissions.view || 0,
+          canEdit: modulePermissions.update || 0,
+          canAdd:
+            modulePermissions.create ||
+            modulePermissions.add ||
+            modulePermissions.generate ||
+            0,
+          canDelete: modulePermissions.delete || modulePermissions.cancel || 0,
+        };
+        return dispatch(saveUserMenuPermission(payload));
+      });
+
+      Promise.all(updatePromises).then((results) => {
+        const allSuccessful = results.every(
+          (res: any) => res?.payload?.data?.success
+        );
+        if (allSuccessful) {
           getlist();
-          showToast(res.payload.data.message, "success");
+          showToast("All permissions updated successfully", "success");
         } else {
           getlist();
-          showToast(res.payload.data.message, "error");
+          showToast("Some permissions failed to update", "error");
         }
       });
     } else {
-      let payload = {
-        role_id: localStorage.getItem("selectedVal"),
-        menu_key: value.data.menu_key,
-        canView: isView,
-        canEdit: isedit,
-        canAdd: isAdd,
-        canDelete: isDelete,
-      };
-      // return;
-      dispatch(saveRoleMenuPermission(payload)).then((res: any) => {
-        if (res?.payload?.data?.success) {
+      // Handle role permissions similarly
+      const menuKeys = Object.keys(permissions);
+      const updatePromises = menuKeys.map((menuKey) => {
+        const modulePermissions = permissions[menuKey];
+        const payload = {
+          role_id: localStorage.getItem("selectedVal"),
+          menu_key: menuKey,
+          canView: modulePermissions.view || 0,
+          canEdit: modulePermissions.update || 0,
+          canAdd:
+            modulePermissions.create ||
+            modulePermissions.add ||
+            modulePermissions.generate ||
+            0,
+          canDelete: modulePermissions.delete || modulePermissions.cancel || 0,
+        };
+        return dispatch(saveRoleMenuPermission(payload));
+      });
+
+      Promise.all(updatePromises).then((results) => {
+        const allSuccessful = results.every(
+          (res: any) => res?.payload?.data?.success
+        );
+        if (allSuccessful) {
           getlist();
-          showToast(res.payload.data.message, "success");
+          showToast("All permissions updated successfully", "success");
         } else {
           getlist();
-          showToast(res.payload.data.message, "error");
+          showToast("Some permissions failed to update", "error");
         }
       });
     }
@@ -105,10 +140,8 @@ const PermissionList: React.FC = () => {
       getlist();
     } else {
     }
-  }, [selectedVal, selectedType , user]);
-  let type = [
-    { id: "User", text: "User" },
-  ];
+  }, [selectedVal, selectedType, user]);
+  let type = [{ id: "User", text: "User" }];
 
   const handleTypeChange = (newValue: any) => {
     setSelectedType(newValue?.id || "");
@@ -125,7 +158,11 @@ const PermissionList: React.FC = () => {
         <div className=" flex max-w-[70%] gap-[30px]">
           {/* Project Name */}
           <div className="flex gap-4 ">
-            <FormControl variant="standard" sx={{ minWidth: 300 }} error={!!errors.project}>
+            <FormControl
+              variant="standard"
+              sx={{ minWidth: 300 }}
+              error={!!errors.project}
+            >
               {/* <InputLabel>Type</InputLabel> */}
               <Controller
                 name="type"
@@ -140,27 +177,77 @@ const PermissionList: React.FC = () => {
                       console.log(e);
                     }}
                     // Set the value based on the selected type id or undefined if not selected
-                    value={type.find((option) => option.id === selectedType) || undefined}
-                    renderInput={(params) => <TextField {...params} label="Search Type" variant="filled" />}
-                    isOptionEqualToValue={(option, value) => option.id === value.id} // Compare option and selected value based on id
+                    value={
+                      type.find((option) => option.id === selectedType) ||
+                      undefined
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Search Type"
+                        variant="filled"
+                      />
+                    )}
+                    isOptionEqualToValue={(option, value) =>
+                      option.id === value.id
+                    } // Compare option and selected value based on id
                     disableClearable // Prevent clearing of the input field
                   />
                 )}
               />
-              {errors.project && <p className="text-red-600 text-[13px]">{errors.project.message}</p>}
+              {errors.project && (
+                <p className="text-red-600 text-[13px]">
+                  {errors.project.message}
+                </p>
+              )}
             </FormControl>
-            <FormControl variant="standard" sx={{ minWidth: 300 }} error={!!errors.project}>
+            <FormControl
+              variant="standard"
+              sx={{ minWidth: 300 }}
+              error={!!errors.project}
+            >
               {/* <InputLabel>{selectedType ? selectedType : 'Select an option'}</InputLabel> */}
-           
-                <SelectUser value={user} onChange={(value) => {setUser(value);setSelectedVal(value?.id)}} />
-              
-              {errors.project && <p className="text-red-600 text-[13px]">{errors.project.message}</p>}
+
+              <SelectUser
+                value={user}
+                onChange={(value) => {
+                  setUser(value);
+                  setSelectedVal(value?.id);
+                }}
+              />
+
+              {errors.project && (
+                <p className="text-red-600 text-[13px]">
+                  {errors.project.message}
+                </p>
+              )}
             </FormControl>
           </div>
         </div>
+        <div className="ml-auto">
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => {
+              // Call the update function from the table component
+              if (tableRef.current && tableRef.current.handleUpdateAll) {
+                tableRef.current.handleUpdateAll();
+              }
+            }}
+            disabled={!selectedVal || !selectedType}
+          >
+            Update All
+          </Button>
+        </div>
       </form>
       <div className="">
-        <PermissionTable selectedVal={selectedVal} selectedType={selectedType} updateRow={updateRow} user={user}/>
+        <PermissionTable
+          selectedVal={selectedVal}
+          selectedType={selectedType}
+          updateRow={updateRow}
+          user={user}
+          ref={tableRef}
+        />
       </div>
     </div>
   );

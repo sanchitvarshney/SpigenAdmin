@@ -4,6 +4,8 @@ import React, {
   useRef,
   useState,
   useEffect,
+  forwardRef,
+  useImperativeHandle,
 } from "react";
 import { AgGridReact } from "@ag-grid-community/react";
 import { ColDef } from "@ag-grid-community/core";
@@ -11,7 +13,6 @@ import { useAppSelector } from "@/hooks/useReduxHook";
 import { Button, Tooltip, Checkbox } from "@mui/material";
 import { OverlayNoRowsTemplate } from "@/components/reusable/OverlayNoRowsTeplate";
 import CustomLoadingOverlay from "@/components/reusable/CustomLoadingOverlay";
-
 
 type Props = {
   setViewMenu?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -22,7 +23,6 @@ type Props = {
 };
 
 interface RowData {
-  orgHierarchy: string[];
   name: string;
   url: string | null;
   status: React.ReactNode;
@@ -62,7 +62,6 @@ const flattenMenuHierarchy = (data: any): RowData[] => {
         0;
 
       result.push({
-        orgHierarchy: [menuKey.replace(/_/g, " ").toUpperCase()],
         name: menuKey.replace(/_/g, " ").toUpperCase(),
         url: null, // Not available in this structure
         status: "ACTIVE", // Default status
@@ -97,7 +96,6 @@ const flattenMenuHierarchy = (data: any): RowData[] => {
         0;
 
       result.push({
-        orgHierarchy: [menuKey.replace(/_/g, " ").toUpperCase()],
         name: menuKey.replace(/_/g, " ").toUpperCase(),
         url: null, // Not available in this structure
         status: "ACTIVE", // Default status
@@ -111,9 +109,7 @@ const flattenMenuHierarchy = (data: any): RowData[] => {
   } else if (Array.isArray(data)) {
     // Handle the old hierarchical structure if needed
     data.forEach((item: any) => {
-      const currentHierarchy = [item.name];
       result.push({
-        orgHierarchy: currentHierarchy,
         name: item.name,
         url: item.url,
         status: item.is_active === 1 ? "ACTIVE" : "INACTIVE",
@@ -141,163 +137,222 @@ const CustomHeader = () => (
     <span>Delete</span>
   </div>
 );
-const TreeDataMenu: React.FC<Props> = ({
-  updateRow,
-  selectedType,
-  selectedVal,
-  user,
-}) => {
-  const gridRef = useRef<AgGridReact>(null);
-  const [rowData, setRowData] = useState<RowData[]>([]);
-  const { menuList, menuListLoading } = useAppSelector((state) => state.menu);
 
-  const [columnDefs] = useState<ColDef[]>([
-    {
-      field: "name",
-      headerName: "Menu Name",
-      filter: true,
-      maxWidth: 300,
-      minWidth: 150,
-      autoHeight: true,
-    },
-    {
-      headerComponent: CustomHeader,
-      field: "action",
-      cellRenderer: (params: any) => {
-        const [isEdit, setIsEdit] = useState<boolean>(
-          params.data?.can_edit || false
-        );
-        const [isAdd, setIsAdd] = useState<boolean>(
-          params.data?.can_add || false
-        );
-        const [isView, setIsView] = useState<boolean>(
-          params.data?.can_view || false
-        );
-        const [isDelete, setIsDelete] = useState<boolean>(
-          params.data?.can_delete || false
-        );
+const TreeDataMenu = forwardRef<any, Props>(
+  ({ updateRow, selectedType, selectedVal, user }, ref) => {
+    const gridRef = useRef<AgGridReact>(null);
+    const [rowData, setRowData] = useState<RowData[]>([]);
+    const [localPermissions, setLocalPermissions] = useState<any>({});
+    const { menuList, menuListLoading } = useAppSelector((state) => state.menu);
 
-        // Update local state when params.data changes
-        useEffect(() => {
-          setIsEdit(params.data?.can_edit || false);
-          setIsAdd(params.data?.can_add || false);
-          setIsView(params.data?.can_view || false);
-          setIsDelete(params.data?.can_delete || false);
-        }, [params.data]);
+    // Handle update all permissions
+    const handleUpdateAll = () => {
+      updateRow(localPermissions);
+    };
 
-        if (!params.data?.menu_key) return null;
+    // Expose the handleUpdateAll function to parent component
+    useImperativeHandle(ref, () => ({
+      handleUpdateAll,
+    }));
 
-        return (
-          <div style={{ display: "flex", alignItems: "center" }}>
-            <div
-              className="permissions-group"
-              style={{ display: "flex", gap: "45px" }}
-            >
-              <Tooltip title="View">
-                <Checkbox
-                  className="permission-checkbox"
-                  onChange={(e) => setIsView(e.target.checked)}
-                  checked={isView}
-                />
-              </Tooltip>
-              <Tooltip title="Edit">
-                <Checkbox
-                  className="permission-checkbox"
-                  onChange={(e) => setIsEdit(e.target.checked)}
-                  checked={isEdit}
-                />
-              </Tooltip>
-              <Tooltip title="Add">
-                <Checkbox
-                  className="permission-checkbox"
-                  onChange={(e) => setIsAdd(e.target.checked)}
-                  checked={isAdd}
-                />
-              </Tooltip>
-              <Tooltip title="Delete">
-                <Checkbox
-                  className="permission-checkbox"
-                  onChange={(e) => setIsDelete(e.target.checked)}
-                  checked={isDelete}
-                />
-              </Tooltip>
+    const [columnDefs] = useState<ColDef[]>([
+      {
+        field: "name",
+        headerName: "Menu Name",
+        filter: true,
+        maxWidth: 500,
+        minWidth: 150,
+        autoHeight: true,
+      },
+      {
+        headerComponent: CustomHeader,
+        field: "action",
+        cellRenderer: (params: any) => {
+          const [isEdit, setIsEdit] = useState<boolean>(
+            params.data?.can_edit || false
+          );
+          const [isAdd, setIsAdd] = useState<boolean>(
+            params.data?.can_add || false
+          );
+          const [isView, setIsView] = useState<boolean>(
+            params.data?.can_view || false
+          );
+          const [isDelete, setIsDelete] = useState<boolean>(
+            params.data?.can_delete || false
+          );
+
+          // Update local state when params.data changes
+          useEffect(() => {
+            setIsEdit(params.data?.can_edit || false);
+            setIsAdd(params.data?.can_add || false);
+            setIsView(params.data?.can_view || false);
+            setIsDelete(params.data?.can_delete || false);
+          }, [params.data]);
+
+          if (!params.data?.menu_key) return null;
+
+          // Update local permissions when checkboxes change
+          const updateLocalPermissions = (
+            menuKey: string,
+            field: string,
+            value: boolean
+          ) => {
+            setLocalPermissions((prev: any) => ({
+              ...prev,
+              [menuKey]: {
+                ...prev[menuKey],
+                [field]: value ? 1 : 0,
+              },
+            }));
+          };
+
+          return (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <div
+                className="permissions-group"
+                style={{ display: "flex", gap: "45px" }}
+              >
+                <Tooltip title="View">
+                  <Checkbox
+                    className="permission-checkbox"
+                    onChange={(e) => {
+                      setIsView(e.target.checked);
+                      updateLocalPermissions(
+                        params.data.menu_key,
+                        "view",
+                        e.target.checked
+                      );
+                    }}
+                    checked={isView}
+                  />
+                </Tooltip>
+                <Tooltip title="Edit">
+                  <Checkbox
+                    className="permission-checkbox"
+                    onChange={(e) => {
+                      setIsEdit(e.target.checked);
+                      updateLocalPermissions(
+                        params.data.menu_key,
+                        "update",
+                        e.target.checked
+                      );
+                    }}
+                    checked={isEdit}
+                  />
+                </Tooltip>
+                <Tooltip title="Add">
+                  <Checkbox
+                    className="permission-checkbox"
+                    onChange={(e) => {
+                      setIsAdd(e.target.checked);
+                      // Determine the correct field based on menu key
+                      let field = "create";
+                      if (
+                        ["einvoice", "ewaybill", "enote"].includes(
+                          params.data.menu_key
+                        )
+                      ) {
+                        field = "generate";
+                      } else if (
+                        ["dispatch_address", "hsn", "client"].includes(
+                          params.data.menu_key
+                        )
+                      ) {
+                        field = "add";
+                      }
+                      updateLocalPermissions(
+                        params.data.menu_key,
+                        field,
+                        e.target.checked
+                      );
+                    }}
+                    checked={isAdd}
+                  />
+                </Tooltip>
+                <Tooltip title="Delete">
+                  <Checkbox
+                    className="permission-checkbox"
+                    onChange={(e) => {
+                      setIsDelete(e.target.checked);
+                      // Determine the correct field based on menu key
+                      let field = "delete";
+                      if (
+                        [
+                          "sell_request",
+                          "sales_invoice",
+                          "einvoice",
+                          "ewaybill",
+                          "enote",
+                        ].includes(params.data.menu_key)
+                      ) {
+                        field = "cancel";
+                      }
+                      updateLocalPermissions(
+                        params.data.menu_key,
+                        field,
+                        e.target.checked
+                      );
+                    }}
+                    checked={isDelete}
+                  />
+                </Tooltip>
+              </div>
             </div>
-            <Button
-              onClick={() => {
-                updateRow(params, isView, isEdit, isAdd, isDelete);
-              }}
-              variant="contained"
-              color="primary"
-              style={{
-                marginLeft: "50px",
-                visibility: params.data ? "visible" : "hidden",
-              }}
-            >
-              Update
-            </Button>
-          </div>
-        );
+          );
+        },
+        sortable: false,
+        filter: false,
+        maxWidth: 800,
       },
-      sortable: false,
-      filter: false,
-      maxWidth: 800,
-    },
-  ]);
+    ]);
 
-  const defaultColDef = useMemo<ColDef>(
-    () => ({
-      flex: 1,
-      floatingFilter: true,
-      filter: "agTextColumnFilter",
-    }),
-    []
-  );
+    const defaultColDef = useMemo<ColDef>(
+      () => ({
+        flex: 1,
+        floatingFilter: true,
+        filter: "agTextColumnFilter",
+      }),
+      []
+    );
 
-  const autoGroupColumnDef = useMemo<ColDef>(
-    () => ({
-      headerName: "Menu Hierarchy",
-      maxWidth: 300,
-      minWidth: 200,
-      autoHeight: true,
-      cellRendererParams: {
-        suppressCount: true,
-      },
-    }),
-    []
-  );
+    // Initialize local permissions when menuList changes
+    useEffect(() => {
+      if (
+        menuList &&
+        typeof menuList === "object" &&
+        "permissions" in menuList
+      ) {
+        setLocalPermissions(menuList.permissions);
+      }
+    }, [menuList]);
 
-  const getDataPath = useCallback((data: RowData) => {
-    return data.orgHierarchy;
-  }, []);
-  console.log(menuList);
-  useEffect(() => {
-    // Only set the rowData when menuList is not empty
-    if (menuList && (user || selectedVal) && selectedType) {
-      setRowData(flattenMenuHierarchy(menuList));
-    }
-  }, [menuList, selectedType, selectedVal, user]);
+    useEffect(() => {
+      // Only set the rowData when menuList is not empty
+      if (menuList && (user || selectedVal) && selectedType) {
+        setRowData(flattenMenuHierarchy(menuList));
+      }
+    }, [menuList, selectedType, selectedVal, user]);
 
-  return (
-    <div className="ag-theme-quartz h-[calc(100vh-175px)]">
-      <AgGridReact
-        overlayNoRowsTemplate={OverlayNoRowsTemplate}
-        loading={menuListLoading}
-        loadingOverlayComponent={CustomLoadingOverlay}
-        ref={gridRef}
-        rowData={rowData}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        autoGroupColumnDef={autoGroupColumnDef}
-        treeData={true}
-        groupDefaultExpanded={-1}
-        suppressCellFocus={true}
-        getDataPath={getDataPath}
-        pagination
-        paginationPageSize={10}
-        paginationPageSizeSelector={[10, 25, 50]}
-      />
-    </div>
-  );
-};
+    return (
+      <div className="ag-theme-quartz h-[calc(100vh-175px)] pl-2">
+        <AgGridReact
+          overlayNoRowsTemplate={OverlayNoRowsTemplate}
+          loading={menuListLoading}
+          loadingOverlayComponent={CustomLoadingOverlay}
+          ref={gridRef}
+          rowData={rowData}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          suppressCellFocus={true}
+          pagination
+          paginationPageSize={10}
+          paginationPageSizeSelector={[10, 25, 50]}
+        />
+      </div>
+    );
+  }
+);
+
+TreeDataMenu.displayName = "TreeDataMenu";
 
 export default TreeDataMenu;
