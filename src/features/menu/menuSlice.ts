@@ -272,7 +272,7 @@ const authSlice = createSlice({
       })
       .addCase(getUserMenu.fulfilled, (state, action) => {
         if (action.payload.data.success) {
-          state.menuList = action.payload?.data?.menu;
+          state.menuList = action.payload?.data?.data;
         }
         state.menuListLoading = false;
       })

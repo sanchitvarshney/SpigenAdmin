@@ -52,8 +52,9 @@ type UserList = {
 
 export type MenuListResponse = {
   success: boolean;
-  menu: MenuItemList[];
+  menu?: MenuItemList[] | any;
   code: number;
+  data?: any;
 };
 
 export type MenuState = {
