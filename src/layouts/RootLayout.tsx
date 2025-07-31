@@ -34,6 +34,12 @@ const menuItems = [
     icon: Icons.permission,
     navigateTo: "/permission/list",
   },
+  {
+    title: "Admin",
+    tab: "admin",
+    icon: Icons.role,
+    navigateTo: "/admin",
+  },
 ];
 const profileItem = {
   title: "Profile",

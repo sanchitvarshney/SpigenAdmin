@@ -6,6 +6,7 @@ import isIdReducer from "@/features/menu/isIdReducer";
 import locationSlice from "@/features/location/locationSlice";
 import ProfileSlice from "@/features/profile/ProfileSlice";
 import dashboardReducer from "@/features/dashboard/dashboardSlice";
+import adminReducer from "@/features/admin/adminSlice";
 
 export const store = configureStore({
   reducer: {
@@ -15,7 +16,8 @@ export const store = configureStore({
     isId: isIdReducer,
     location: locationSlice,
     profile: ProfileSlice,
-    dashboard: dashboardReducer
+    dashboard: dashboardReducer,
+    admin: adminReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

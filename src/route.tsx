@@ -12,6 +12,7 @@ import Profile from "@/pages/profile/Profile";
 import UserLayout from "./layouts/UserLayout";
 import PermissionLayout from "./layouts/PermissionLayout";
 import PasswordRecoveryPage from "@/pages/authentication/PasswordRecoveryPage";
+import AdminManagement from "@/pages/admin/AdminManagement";
 
 export const router = createBrowserRouter([
   {
@@ -59,6 +60,10 @@ export const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />,
+      },
+      {
+        path: "/admin",
+        element: <AdminManagement />,
       },
     ],
   },
