@@ -15,7 +15,6 @@ import {
   UserProfileResponse,
 } from "./userType";
 import { showToast } from "@/utills/toasterContext";
-import { RolesListResponse } from "@/features/permission/permissionType";
 
 const initialState: AdduserSatates = {
   addUserloading: false,
@@ -49,14 +48,6 @@ export const getUserList = createAsyncThunk<
   return response;
 });
 
-export const getRoleList = createAsyncThunk<AxiosResponse<RolesListResponse>>(
-  "permission/getRoleList",
-  async () => {
-    const response = await axiosInstance.get("/role/getRoles");
-    return response;
-  }
-);
-
 export const getUserProfile = createAsyncThunk<
   AxiosResponse<UserProfileResponse>,
   string
@@ -85,18 +76,6 @@ export const changeUserPassword = createAsyncThunk<
     return rejectWithValue(error.response.data.message);
   }
 });
-
-// export const changeUserPassword = createAsyncThunk<
-// AxiosResponse<ChangePasswordResponse>,
-// ChangeUserPasswordPayload
-// >("user/changeuserPasword", async (paylod) => {
-//   const response = await axiosInstance.put(
-//     `/user/change-user-password`,
-//     paylod
-//   );
-//   console.log(response)
-//   return response;
-// });
 
 export const updateUserEmail = createAsyncThunk<
   AxiosResponse<ChangePasswordResponse>,
@@ -193,20 +172,6 @@ export const userActivityLogs = createAsyncThunk<AxiosResponse<any>, any>(
     return response;
   }
 );
-export const notificationPending = createAsyncThunk<AxiosResponse<any>>(
-  "/notification/pending",
-  async () => {
-    const response = await axiosInstance.get("/notification/pending");
-    return response;
-  }
-);
-export const notificationPendingDelete = createAsyncThunk<
-  AxiosResponse<any>,
-  any
->("/notification/pending", async (id) => {
-  const response = await axiosInstance.delete(`/notification/pending/${id}`);
-  return response;
-});
 
 const userSlice = createSlice({
   name: "user",

@@ -5,7 +5,6 @@ import RootLayout from "./layouts/RootLayout";
 import AddNewUser from "./pages/user/AddNewUser";
 import ViewUser from "./pages/user/ViewUser";
 import UserProfile from "./pages/user/UserProfile";
-import ViewRoleDetails from "./pages/permission/ViewRoleDetails";
 import Login from "./pages/authentication/Login";
 import ProtectedRoute from "./components/shared/ProtectedRoute";
 import PermissionList from "./pages/permissions/PermissionList";
@@ -48,10 +47,6 @@ export const router = createBrowserRouter([
       {
         path: "/user/view-user/:id",
         element: <UserProfile />,
-      },
-      {
-        path: "/role/view-role/:id",
-        element: <ViewRoleDetails />,
       },
       {
         path: "/permission/list",

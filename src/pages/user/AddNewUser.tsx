@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -18,7 +18,7 @@ import FormLabel from "@mui/material/FormLabel";
 import { AddUserPayload } from "@/features/user/userType";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import LoadingButton from "@mui/lab/LoadingButton";
-import { addUser, getRoleList } from "@/features/user/userSlice";
+import { addUser } from "@/features/user/userSlice";
 import { showToast } from "@/utills/toasterContext";
 import { Icons } from "@/components/icons/icons";
 
@@ -94,10 +94,6 @@ const AddNewUser: React.FC = () => {
       }
     });
   };
-
-  useEffect(() => {
-    dispatch(getRoleList());
-  }, [ dispatch]);
 
   return (
     <div className="overflow-y-auto h-[calc(100vh-72px)]">
