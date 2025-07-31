@@ -68,6 +68,37 @@ const HomePage = () => {
     return null;
   }
 
+  // Get current date and prepare month data
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+
+  // Create array of last 3 months including current month
+  const getLastThreeMonths = () => {
+    const months = [];
+    for (let i = 2; i >= 0; i--) {
+      const date = new Date(currentYear, currentDate.getMonth() - i, 1);
+      months.push(date.toLocaleString("default", { month: "short" }));
+    }
+    return months;
+  };
+
+  const lastThreeMonths = getLastThreeMonths();
+
+  // Filter data for current month and last 2 months
+  const filteredMonthData = lastThreeMonths.map((monthName) => {
+    const foundData = data.monthWiseData.find(
+      (item) => item.month === monthName
+    );
+    return (
+      foundData || {
+        month: monthName,
+        soCount: 0,
+        ewayCount: 0,
+        einvoiceCount: 0,
+      }
+    );
+  });
+
   // Prepare chart data
   const chartData = data.monthWiseData.map((item) => ({
     month: item.month,
@@ -293,30 +324,32 @@ const HomePage = () => {
             Monthly Activity Summary
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {data.monthWiseData
-              .slice(-3)
-              .reverse()
-              .map((month) => (
-                <div key={month.month} className="bg-gray-50 rounded-lg p-4">
-                  <h4 className="font-medium text-gray-900 mb-2">
-                    {month.month}
-                  </h4>
-                  <div className="space-y-1 text-sm">
-                    <p className="text-gray-600">
-                      <span className="font-medium">Sales Orders:</span>{" "}
-                      {month.soCount}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">E-Invoices:</span>{" "}
-                      {month.einvoiceCount}
-                    </p>
-                    <p className="text-gray-600">
-                      <span className="font-medium">E-Waybills:</span>{" "}
-                      {month.ewayCount}
-                    </p>
-                  </div>
+            {filteredMonthData.map((month, index) => (
+              <div key={month.month} className="bg-gray-50 rounded-lg p-4">
+                <h4 className="font-medium text-gray-900 mb-2">
+                  {month.month}
+                  {index === 2 && (
+                    <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                      Current
+                    </span>
+                  )}
+                </h4>
+                <div className="space-y-1 text-sm">
+                  <p className="text-gray-600">
+                    <span className="font-medium">Sales Orders:</span>{" "}
+                    {month.soCount}
+                  </p>
+                  <p className="text-gray-600">
+                    <span className="font-medium">E-Invoices:</span>{" "}
+                    {month.einvoiceCount}
+                  </p>
+                  <p className="text-gray-600">
+                    <span className="font-medium">E-Waybills:</span>{" "}
+                    {month.ewayCount}
+                  </p>
                 </div>
-              ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>
