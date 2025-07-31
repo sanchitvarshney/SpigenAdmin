@@ -173,11 +173,11 @@ const RootLayout: React.FC<Props> = ({ children }) => {
           </div>
         </div>
 
-        <div className="relative w-full">
+        <div className="relative w-full flex flex-col">
           <div className="">
             <Navigation />
           </div>
-          <div className="w-full overflow-x-hidden ">
+          <div className="w-full overflow-x-hidden overflow-y-auto flex-1">
             <div>{children}</div>
           </div>
         </div>

@@ -47,7 +47,6 @@ const PermissionList: React.FC = () => {
 
   const updateRow = (permissions: any) => {
     let newtype = localStorage.getItem("selectedType");
-    const userId = localStorage.getItem("selectedVal");
 
     if (newtype == "User") {
       // Make a single API call with all permissions data
