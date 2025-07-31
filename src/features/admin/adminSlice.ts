@@ -12,16 +12,27 @@ export interface Admin {
   status: number;
 }
 
+export interface User {
+  id: string;
+  text: string;
+}
+
 export interface AdminState {
   admins: Admin[];
+  users: User[];
   loading: boolean;
+  addLoading: boolean;
+  statusLoading: boolean;
   error: string | null;
   success: string | null;
 }
 
 const initialState: AdminState = {
   admins: [],
+  users: [],
   loading: false,
+  addLoading: false,
+  statusLoading: false,
   error: null,
   success: null,
 };
@@ -36,6 +47,22 @@ export const fetchAdmins = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Failed to fetch admins"
+      );
+    }
+  }
+);
+
+export const fetchUsers = createAsyncThunk(
+  "admin/fetchUsers",
+  async (search: string = "", { rejectWithValue }) => {
+    try {
+      const response = await spigenDashApi.get(
+        `/user/users?status=1&search=${search}`
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch users"
       );
     }
   }
@@ -109,31 +136,44 @@ const adminSlice = createSlice({
         state.error = action.payload as string;
       });
 
-    // Add admin
+    // Fetch users
     builder
-      .addCase(addAdmin.pending, (state) => {
+      .addCase(fetchUsers.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(addAdmin.fulfilled, (state) => {
+      .addCase(fetchUsers.fulfilled, (state, action) => {
         state.loading = false;
+        state.users = action.payload.data || action.payload || [];
+      })
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Add admin
+    builder
+      .addCase(addAdmin.pending, (state) => {
+        state.addLoading = true;
+        state.error = null;
+      })
+      .addCase(addAdmin.fulfilled, (state) => {
+        state.addLoading = false;
         state.success = "Admin added successfully";
-        // Refresh the admin list
-        // You might want to dispatch fetchAdmins here
       })
       .addCase(addAdmin.rejected, (state, action) => {
-        state.loading = false;
+        state.addLoading = false;
         state.error = action.payload as string;
       });
 
     // Change admin status
     builder
       .addCase(changeAdminStatus.pending, (state) => {
-        state.loading = true;
+        state.statusLoading = true;
         state.error = null;
       })
       .addCase(changeAdminStatus.fulfilled, (state, action) => {
-        state.loading = false;
+        state.statusLoading = false;
         state.success = "Admin status updated successfully";
         // Update the admin status in the local state
         const { userId, status } = action.payload;
@@ -142,12 +182,12 @@ const adminSlice = createSlice({
             (admin) => admin.user_id === userId
           );
           if (adminIndex !== -1) {
-            state.admins[adminIndex].status = status;
+            state.admins[adminIndex].is_active = status;
           }
         }
       })
       .addCase(changeAdminStatus.rejected, (state, action) => {
-        state.loading = false;
+        state.statusLoading = false;
         state.error = action.payload as string;
       });
   },

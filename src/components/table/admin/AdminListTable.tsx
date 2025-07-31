@@ -2,8 +2,11 @@ import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import {
   fetchAdmins,
+  fetchUsers,
   changeAdminStatus,
   addAdmin,
+  clearSuccess,
+  clearError,
   Admin,
 } from "@/features/admin/adminSlice";
 import { Button } from "@/components/ui/button";
@@ -40,9 +43,8 @@ import { useToast } from "@/hooks/use-toast";
 
 const AdminListTable = () => {
   const dispatch = useAppDispatch();
-  const { admins, loading, error, success } = useAppSelector(
-    (state) => state.admin
-  );
+  const { admins, users, loading, addLoading, statusLoading, error, success } =
+    useAppSelector((state) => state.admin);
   const { toast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,11 +52,34 @@ const AdminListTable = () => {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [newAdminUserId, setNewAdminUserId] = useState("");
+  const [selectedUserId, setSelectedUserId] = useState("");
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   React.useEffect(() => {
     dispatch(fetchAdmins());
   }, [dispatch]);
+
+  React.useEffect(() => {
+    if (isAddDialogOpen) {
+      dispatch(fetchUsers(""));
+    }
+  }, [isAddDialogOpen, dispatch]);
+
+  // Click outside handler to close dropdown
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest(".user-search-container")) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   React.useEffect(() => {
     if (success) {
@@ -77,26 +102,47 @@ const AdminListTable = () => {
     }
   }, [success, error, toast, dispatch]);
 
+  // Clear success and error messages after showing toast
+  React.useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        if (success) dispatch(clearSuccess());
+        if (error) dispatch(clearError());
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, error, dispatch]);
+
   const handleStatusChange = async (admin: Admin) => {
     const newStatus = admin.is_active === 1 ? 0 : 1;
-    await dispatch(
-      changeAdminStatus({ userId: admin.user_id, status: newStatus })
-    );
+    try {
+      await dispatch(
+        changeAdminStatus({ userId: admin.user_id, status: newStatus })
+      );
+    } catch (error) {
+      console.error("Error changing admin status:", error);
+    }
   };
 
   const handleAddAdmin = async () => {
-    if (!newAdminUserId.trim()) {
+    if (!selectedUserId.trim()) {
       toast({
         title: "Error",
-        description: "Please enter a User ID",
+        description: "Please select a user",
         variant: "destructive",
       });
       return;
     }
 
-    await dispatch(addAdmin(newAdminUserId.trim()));
-    setNewAdminUserId("");
-    setIsAddDialogOpen(false);
+    try {
+      await dispatch(addAdmin(selectedUserId.trim()));
+      setSelectedUserId("");
+      setUserSearchTerm("");
+      setShowUserDropdown(false);
+      setIsAddDialogOpen(false);
+    } catch (error) {
+      console.error("Error adding admin:", error);
+    }
   };
 
   const filteredAdmins = (admins || []).filter(
@@ -140,33 +186,112 @@ const AdminListTable = () => {
                 Add Admin
               </Button>
             </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Admin</DialogTitle>
-                <DialogDescription>
-                  Enter the User ID of the person you want to make an admin.
+            <DialogContent className="max-w-md w-full max-h-[90vh] overflow-y-none">
+              <DialogHeader className="pb-4">
+                <DialogTitle className="text-xl font-semibold">
+                  Add New Admin
+                </DialogTitle>
+                <DialogDescription className="text-gray-600">
+                  Select a user from the dropdown to make them an admin.
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="userId">User ID</Label>
-                  <Input
-                    id="userId"
-                    value={newAdminUserId}
-                    onChange={(e) => setNewAdminUserId(e.target.value)}
-                    placeholder="Enter User ID"
-                  />
+              <div className="space-y-6">
+                <div className="space-y-3">
+                  <Label
+                    htmlFor="userId"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Select User
+                  </Label>
+                  <div className="relative user-search-container">
+                    <Input
+                      placeholder="Search users by name or email..."
+                      value={userSearchTerm}
+                      onChange={(e) => {
+                        setUserSearchTerm(e.target.value);
+                        setShowUserDropdown(true);
+                        dispatch(fetchUsers(e.target.value));
+                      }}
+                      onFocus={() => {
+                        setShowUserDropdown(true);
+                        if (!userSearchTerm) {
+                          dispatch(fetchUsers(""));
+                        }
+                      }}
+                      className="w-full"
+                    />
+                    {showUserDropdown && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-xl max-h-[300px] overflow-y-auto">
+                        {users.length > 0 ? (
+                          users.map((user) => (
+                            <div
+                              key={user.id}
+                              className="px-4 py-3 hover:bg-blue-50 cursor-pointer border-b border-gray-100 transition-colors last:border-b-0"
+                              onClick={() => {
+                                setSelectedUserId(user.id);
+                                setUserSearchTerm(user.text);
+                                setShowUserDropdown(false);
+                              }}
+                            >
+                              <div className="font-medium text-gray-900">
+                                {user.text.split("-")[0]?.trim()}
+                              </div>
+                              <div className="text-sm text-gray-500 mt-1">
+                                {user.text.split("-")[1]?.trim()}
+                              </div>
+                            </div>
+                          ))
+                        ) : loading ? (
+                          <div className="px-4 py-3 text-gray-500 flex items-center">
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                            Loading users...
+                          </div>
+                        ) : (
+                          <div className="px-4 py-3 text-gray-500 text-center">
+                            No users found. Try a different search term.
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {selectedUserId && (
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <div className="text-xs font-medium text-blue-700 uppercase tracking-wide">
+                        Selected User ID
+                      </div>
+                      <div className="text-sm font-mono text-blue-900 mt-1">
+                        {selectedUserId}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="pt-4 border-t border-gray-200">
                 <Button
                   variant="outline"
-                  onClick={() => setIsAddDialogOpen(false)}
+                  onClick={() => {
+                    setIsAddDialogOpen(false);
+                    setSelectedUserId("");
+                    setUserSearchTerm("");
+                    setShowUserDropdown(false);
+                  }}
+                  className="px-6"
                 >
                   Cancel
                 </Button>
-                <Button onClick={handleAddAdmin} disabled={loading}>
-                  Add Admin
+                <Button
+                  onClick={handleAddAdmin}
+                  disabled={addLoading || !selectedUserId}
+                  className="px-6 bg-blue-600 hover:bg-blue-700"
+                >
+                  {addLoading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Adding...
+                    </>
+                  ) : (
+                    "Add Admin"
+                  )}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -250,7 +375,7 @@ const AdminListTable = () => {
                           <Switch
                             checked={admin.is_active === 1}
                             onCheckedChange={() => handleStatusChange(admin)}
-                            disabled={loading}
+                            disabled={statusLoading}
                           />
                           <span className="text-sm text-gray-500">
                             {admin.is_active === 1 ? "Active" : "Inactive"}
