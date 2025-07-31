@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import { fetchDashboardData } from "@/features/dashboard/dashboardSlice";
+import DashboardSkeleton from "@/components/reusable/DashboardSkeleton";
 import {
   FiUsers,
   FiShoppingCart,
@@ -33,14 +34,7 @@ const HomePage = () => {
 
   // Loading state
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-gray-50 overflow-auto">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard data...</p>
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   // Error state
