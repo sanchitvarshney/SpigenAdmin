@@ -10,11 +10,8 @@ import {
   InputLabel,
   Typography,
 } from "@mui/material";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
 import { AddUserPayload } from "@/features/user/userType";
 import { useAppDispatch, useAppSelector } from "@/hooks/useReduxHook";
 import LoadingButton from "@mui/lab/LoadingButton";
@@ -30,7 +27,6 @@ const schema = z.object({
     .string()
     .min(8, "Confirm password must be at least 8 characters"),
   mobile: z.string().regex(/^([6-9]\d{9})$/, "Invalid Indian mobile number"),
-  gender: z.enum(["M", "F"]),
   askPasswordChange: z.boolean(),
   subscribeNewsletter: z.boolean(),
   userType: z.enum(["user", "admin", "developer"]),
@@ -60,7 +56,6 @@ const AddNewUser: React.FC = () => {
       email: "",
       password: "",
       confirmPassword: "",
-      gender: "M",
       askPasswordChange: false,
       subscribeNewsletter: false,
       userType: "user",
@@ -79,7 +74,6 @@ const AddNewUser: React.FC = () => {
       email: data.email,
       mobileNo: data.mobile,
       password: data.password,
-      gender: data.gender,
       asktochange: data.askPasswordChange ? "on" : "off",
       newsletterSubscription: data.subscribeNewsletter ? "yes" : "no",
       type: data.userType,
@@ -170,27 +164,7 @@ const AddNewUser: React.FC = () => {
                 />
               )}
             />
-            <Controller
-              name="gender"
-              control={control}
-              render={({ field }) => (
-                <FormControl>
-                  <FormLabel>Gender</FormLabel>
-                  <RadioGroup {...field} row>
-                    <FormControlLabel
-                      value="F"
-                      control={<Radio />}
-                      label="Female"
-                    />
-                    <FormControlLabel
-                      value="M"
-                      control={<Radio />}
-                      label="Male"
-                    />
-                  </RadioGroup>
-                </FormControl>
-              )}
-            />
+          
             <Controller
               name="askPasswordChange"
               control={control}

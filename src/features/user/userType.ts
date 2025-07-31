@@ -3,7 +3,6 @@ export type AddUserPayload = {
   email: string;
   mobileNo: string;
   password: string;
-  gender: "F" | "M";
   asktochange: "off" | "on";
   newsletterSubscription: "yes" | "no";
   // userStatus: "active" | "inactive";
