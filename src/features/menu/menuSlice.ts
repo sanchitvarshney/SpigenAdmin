@@ -83,7 +83,9 @@ export const getUserMenu = createAsyncThunk<
   AxiosResponse<MenuListResponse>,
   string
 >(`/user/menu/getUserMenu`, async (id) => {
-  const response = await axiosInstance.get(`/admin/permissions/userActionPermissions/${id}`);
+  const response = await axiosInstance.get(
+    `/admin/permissions/userActionPermissions/${id}`
+  );
   return response;
 });
 export const getRoleMenu = createAsyncThunk<
@@ -99,8 +101,10 @@ export const saveUserMenuPermission = createAsyncThunk<
   AxiosResponse<MenuListResponse>,
   any
 >("/user/menu/saveUserMenuPermission", async (payload: any) => {
+  // Get the user ID from localStorage or payload
+  const userId = localStorage.getItem("selectedVal");
   const response = await axiosInstance.post(
-    "/permission/saveUserMenuPermission",
+    `/admin/permissions/userActionPermissions/${userId}`,
     payload
   );
   return response;
@@ -109,8 +113,10 @@ export const saveRoleMenuPermission = createAsyncThunk<
   AxiosResponse<MenuListResponse>,
   any
 >("/user/menu/saveRoleMenuPermission", async (payload) => {
+  // Get the role ID from localStorage or payload
+  const roleId = localStorage.getItem("selectedVal");
   const response = await axiosInstance.post(
-    "/permission/saveRoleMenuPermission",
+    `/admin/permissions/roleActionPermissions/${roleId}`,
     payload
   );
   return response;

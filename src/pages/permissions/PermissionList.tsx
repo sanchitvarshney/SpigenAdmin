@@ -29,7 +29,6 @@ const PermissionList: React.FC = () => {
   const [selectedType, setSelectedType] = React.useState<any>("");
   const [user, setUser] = React.useState<UserType | null>(null);
   const tableRef = useRef<any>(null);
-  // const isId = useSelector((state: RootState) => state.isId.isId);
   const {
     // handleSubmit,
     control,
@@ -48,70 +47,54 @@ const PermissionList: React.FC = () => {
 
   const updateRow = (permissions: any) => {
     let newtype = localStorage.getItem("selectedType");
-    if (newtype == "User") {
-      // Handle bulk update for all permissions
-      const menuKeys = Object.keys(permissions);
-      const updatePromises = menuKeys.map((menuKey) => {
-        const modulePermissions = permissions[menuKey];
-        const payload = {
-          user_id: localStorage.getItem("selectedVal"),
-          menu_key: menuKey,
-          canView: modulePermissions.view || 0,
-          canEdit: modulePermissions.update || 0,
-          canAdd:
-            modulePermissions.create ||
-            modulePermissions.add ||
-            modulePermissions.generate ||
-            0,
-          canDelete: modulePermissions.delete || modulePermissions.cancel || 0,
-        };
-        return dispatch(saveUserMenuPermission(payload));
-      });
+    const userId = localStorage.getItem("selectedVal");
 
-      Promise.all(updatePromises).then((results) => {
-        const allSuccessful = results.every(
-          (res: any) => res?.payload?.data?.success
-        );
-        if (allSuccessful) {
-          getlist();
-          showToast("All permissions updated successfully", "success");
-        } else {
-          getlist();
-          showToast("Some permissions failed to update", "error");
-        }
-      });
+    if (newtype == "User") {
+      // Make a single API call with all permissions data
+      const payload = {
+        permissions: permissions,
+      };
+
+      dispatch(saveUserMenuPermission(payload))
+        .then((res: any) => {
+          if (res?.payload?.data?.success) {
+            getlist();
+            showToast("All permissions updated successfully", "success");
+          } else {
+            getlist();
+            showToast(
+              res?.payload?.data?.message || "Failed to update permissions",
+              "error"
+            );
+          }
+        })
+        .catch((error: any) => {
+          console.error("Error updating permissions:", error);
+          showToast("Error updating permissions", "error");
+        });
     } else {
       // Handle role permissions similarly
-      const menuKeys = Object.keys(permissions);
-      const updatePromises = menuKeys.map((menuKey) => {
-        const modulePermissions = permissions[menuKey];
-        const payload = {
-          role_id: localStorage.getItem("selectedVal"),
-          menu_key: menuKey,
-          canView: modulePermissions.view || 0,
-          canEdit: modulePermissions.update || 0,
-          canAdd:
-            modulePermissions.create ||
-            modulePermissions.add ||
-            modulePermissions.generate ||
-            0,
-          canDelete: modulePermissions.delete || modulePermissions.cancel || 0,
-        };
-        return dispatch(saveRoleMenuPermission(payload));
-      });
+      const payload = {
+        permissions: permissions,
+      };
 
-      Promise.all(updatePromises).then((results) => {
-        const allSuccessful = results.every(
-          (res: any) => res?.payload?.data?.success
-        );
-        if (allSuccessful) {
-          getlist();
-          showToast("All permissions updated successfully", "success");
-        } else {
-          getlist();
-          showToast("Some permissions failed to update", "error");
-        }
-      });
+      dispatch(saveRoleMenuPermission(payload))
+        .then((res: any) => {
+          if (res?.payload?.data?.success) {
+            getlist();
+            showToast("All permissions updated successfully", "success");
+          } else {
+            getlist();
+            showToast(
+              res?.payload?.data?.message || "Failed to update permissions",
+              "error"
+            );
+          }
+        })
+        .catch((error: any) => {
+          console.error("Error updating permissions:", error);
+          showToast("Error updating permissions", "error");
+        });
     }
   };
 
