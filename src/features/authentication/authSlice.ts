@@ -26,7 +26,7 @@ export const loginUserAsync = createAsyncThunk<
   LoginCredentials
 >("auth/signin", async (loginCredential) => {
   const response = await axiosInstance.post<LoginResponse>(
-    "/auth/signin",
+    "/auth/signinToAdmin",
     loginCredential
   );
   return response;

@@ -31,18 +31,23 @@ const schema = z.object({
   subscribeNewsletter: z.boolean(),
   userType: z.enum(["user", "admin", "developer"]),
   authtype: z.enum(["E", "M", "1", "0"]),
+  loginType: z.enum(["developer", "user"]),
 });
 
 // Define the form input types using TypeScript
 type FormData = z.infer<typeof schema>;
 
 const AddNewUser: React.FC = () => {
-
   const authTypes = [
     { label: "Email", value: "E" },
     { label: "Mobile", value: "M" },
     { label: "Both OK", value: "1" },
     { label: "None", value: "0" },
+  ];
+
+  const loginTypes = [
+    { label: "Developer", value: "developer" },
+    { label: "User", value: "user" },
   ];
   const {
     handleSubmit,
@@ -61,12 +66,11 @@ const AddNewUser: React.FC = () => {
       userType: "user",
       authtype: "E",
       mobile: "",
+      loginType: "user",
     },
   });
   const dispatch = useAppDispatch();
-  const { addUserloading, } = useAppSelector(
-    (state) => state.user
-  );
+  const { addUserloading } = useAppSelector((state) => state.user);
 
   const onSubmit = (data: FormData) => {
     const payload: AddUserPayload = {
@@ -78,6 +82,7 @@ const AddNewUser: React.FC = () => {
       newsletterSubscription: data.subscribeNewsletter ? "yes" : "no",
       type: data.userType,
       verification: data.authtype,
+      loginType: data.loginType,
     };
     dispatch(addUser(payload)).then((res: any) => {
       if (res.payload.data.code == 200) {
@@ -164,7 +169,7 @@ const AddNewUser: React.FC = () => {
                 />
               )}
             />
-          
+
             <Controller
               name="askPasswordChange"
               control={control}
@@ -196,6 +201,30 @@ const AddNewUser: React.FC = () => {
                     ))}
                   </Select>
                   <p className="text-red-500">{errors.authtype?.message}</p>
+                </FormControl>
+              )}
+            />
+
+            {/* Login Type Select */}
+            <Controller
+              name="loginType"
+              control={control}
+              render={({ field }) => (
+                <FormControl variant="filled" error={!!errors.loginType}>
+                  <InputLabel>Login Type</InputLabel>
+                  <Select
+                    label="Login Type"
+                    {...field}
+                    value={field.value || ""}
+                    onChange={field.onChange}
+                  >
+                    {loginTypes.map((type) => (
+                      <MenuItem key={type.value} value={type.value}>
+                        {type.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                  <p className="text-red-500">{errors.loginType?.message}</p>
                 </FormControl>
               )}
             />

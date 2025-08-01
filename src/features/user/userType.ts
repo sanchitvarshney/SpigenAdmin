@@ -8,6 +8,7 @@ export type AddUserPayload = {
   // userStatus: "active" | "inactive";
   type: "developer" | "admin" | "user";
   verification: "E" | "M" | "1" | "0";
+  loginType: "developer" | "user";
 };
 export type AdduserApiResponse = {
   message: string;
