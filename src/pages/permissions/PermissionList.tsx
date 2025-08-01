@@ -7,10 +7,10 @@ import {
   saveUserMenuPermission,
 } from "@/features/menu/menuSlice";
 import { useAppDispatch } from "@/hooks/useReduxHook";
-import { Autocomplete, FormControl, TextField, Button } from "@mui/material";
+import { FormControl, Button } from "@mui/material";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { setIsId } from "@/features/menu/isIdReducer";
 import { showToast } from "@/utills/toasterContext";
 import SelectUser, {
@@ -26,12 +26,10 @@ type FormValues = z.infer<typeof schema>;
 
 const PermissionList: React.FC = () => {
   const [selectedVal, setSelectedVal] = React.useState<any>("");
-  const [selectedType, setSelectedType] = React.useState<any>("");
   const [user, setUser] = React.useState<UserType | null>(null);
   const tableRef = useRef<any>(null);
   const {
     // handleSubmit,
-    control,
     // reset,
     // watch,
     formState: { errors },
@@ -115,21 +113,16 @@ const PermissionList: React.FC = () => {
     }
   };
   useEffect(() => {
-    if (selectedVal.length) {
+    // Set the default type in localStorage on component mount
+    localStorage.setItem("selectedType", "User");
+
+    if (selectedVal?.length) {
       dispatch(setIsId(selectedVal));
       localStorage.setItem("selectedVal", selectedVal);
-      localStorage.setItem("selectedType", selectedType);
       getlist();
     } else {
     }
-  }, [selectedVal, selectedType, user]);
-  let type = [{ id: "User", text: "User" }];
-
-  const handleTypeChange = (newValue: any) => {
-    setSelectedType(newValue?.id || "");
-    setSelectedVal(""); // Clear selected value when changing the type
-    setUser(null);
-  };
+  }, [selectedVal, user]);
 
   return (
     <div className="">
@@ -140,49 +133,6 @@ const PermissionList: React.FC = () => {
         <div className=" flex max-w-[70%] gap-[30px]">
           {/* Project Name */}
           <div className="flex gap-4 ">
-            <FormControl
-              variant="standard"
-              sx={{ minWidth: 300 }}
-              error={!!errors.project}
-            >
-              {/* <InputLabel>Type</InputLabel> */}
-              <Controller
-                name="type"
-                control={control}
-                render={({ field }) => (
-                  <Autocomplete
-                    {...field}
-                    options={type} // Options for the type selection
-                    getOptionLabel={(option) => option.text} // How to display the options in the dropdown
-                    onChange={(e, newValue) => {
-                      handleTypeChange(newValue); // Update selected type by its id
-                      console.log(e);
-                    }}
-                    // Set the value based on the selected type id or undefined if not selected
-                    value={
-                      type.find((option) => option.id === selectedType) ||
-                      undefined
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Search Type"
-                        variant="filled"
-                      />
-                    )}
-                    isOptionEqualToValue={(option, value) =>
-                      option.id === value.id
-                    } // Compare option and selected value based on id
-                    disableClearable // Prevent clearing of the input field
-                  />
-                )}
-              />
-              {errors.project && (
-                <p className="text-red-600 text-[13px]">
-                  {errors.project.message}
-                </p>
-              )}
-            </FormControl>
             <FormControl
               variant="standard"
               sx={{ minWidth: 300 }}
@@ -216,7 +166,7 @@ const PermissionList: React.FC = () => {
                 tableRef.current.handleUpdateAll();
               }
             }}
-            disabled={!selectedVal || !selectedType}
+            disabled={!selectedVal}
           >
             Update All
           </Button>
@@ -225,7 +175,7 @@ const PermissionList: React.FC = () => {
       <div className="">
         <PermissionTable
           selectedVal={selectedVal}
-          selectedType={selectedType}
+          selectedType={"User"}
           updateRow={updateRow}
           user={user}
           ref={tableRef}
