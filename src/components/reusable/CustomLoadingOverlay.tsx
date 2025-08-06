@@ -1,4 +1,4 @@
-const CustomLoadingOverlay = () => {
+const CustomLoadingOverlay = () => { //loading overlay
     return (
       <div className="z-20 flex items-center justify-center w-full h-full bg-white ">
         <div className="h-[50px] w-[50px] rounded-full bg-zinc-950/30 flex items-center justify-center ">
