@@ -9,7 +9,7 @@ const SelectEndPoint: React.FC = () => {
   const [urls, setUrls] = useState<string[]>(() => JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"));
   const [currentUrl, setCurrentUrl] = useState<string>(() => localStorage.getItem(CURRENT_URL_KEY) || import.meta.env.VITE_REACT_APP_API_BASE_URL);
   const [open, setOpen] = useState(false);
-  const [newUrl, setNewUrl] = useState("");
+  const [newUrl, setNewUrl] = useState(""); 
 
   useEffect(() => {
     const handleStorageChange = () => {
