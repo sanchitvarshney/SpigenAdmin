@@ -17,7 +17,7 @@ const getFingerprint = async () => {
 
 // Create Axios instance
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_REACT_APP_API_BASE_URL,
+  baseURL: localStorage.getItem("currentUrl") || import.meta.env.VITE_REACT_APP_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
