@@ -16,6 +16,7 @@ import {
 import CustomTooltip from "@/components/ui/CustomTooltip";
 import axiosInstance from "@/api/spigenDashApi";
 import { Icons } from "@/components/icons/icons";
+import HelpAndSupportModel from "@/components/reusable/HelpAndSupportModel";
 
 type Props = {
   children: React.ReactNode;
@@ -50,6 +51,7 @@ const profileItem = {
 const RootLayout: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
   const [tab, setTab] = useState<string>("dashboard");
+  const [openSettings, setOpenSettings] = useState<boolean>(false);
 
   const location = useLocation();
 
@@ -121,7 +123,7 @@ const RootLayout: React.FC<Props> = ({ children }) => {
               />
             </Link>
           </div>
-          <div className="h-[calc(100vh-160px)] flex flex-col items-center gap-[5px] py-[20px]">
+          <div className="h-[calc(100vh-180px)] flex flex-col items-center gap-[5px] py-[15px]">
             {menuItems.map(
               ({ title, tab: itemTab, icon: Icon, navigateTo }) => (
                 <Tooltip key={itemTab} title={title} placement="right" arrow>
@@ -151,6 +153,28 @@ const RootLayout: React.FC<Props> = ({ children }) => {
           </div>
           <div className="flex flex-col gap-4 mt-auto">
             <div className="h-[20px] flex items-center justify-center">
+              <Tooltip title={"Setting"} placement="right" arrow>
+                <Button
+                  onClick={() => {
+                  setOpenSettings(true);
+                  }}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    minWidth: 0,
+                    padding: 0,
+                  }}
+                >
+                  <Icons.setting
+                    className={
+                      "text-slate-700"
+                    }
+                  />
+                </Button>
+              </Tooltip>
+            </div>
+            <div className="h-[20px] flex items-center justify-center pt-8">
               <Tooltip title={profileItem.title} placement="right" arrow>
                 <Button
                   onClick={() => {
@@ -188,6 +212,7 @@ const RootLayout: React.FC<Props> = ({ children }) => {
           </div>
         </div>
       </main>
+      <HelpAndSupportModel helpModel={openSettings} setHelpModel={setOpenSettings} />
     </Wrapper>
   );
 };
